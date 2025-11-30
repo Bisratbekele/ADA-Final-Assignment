@@ -244,8 +244,11 @@ ggplot(data = analysis_data %>% filter(!is.na(depression_binary))) +
 
 ```{r}
 # Dataset with complete cases
+# Includion Criteria of 18 year and above
+analysis_data_adults <- analysis_data %>%
+  filter(RIDAGEYR >= 18) 
 # Exclude missing values for key variables
-analysis_complete <- analysis_data %>%
+analysis_complete <- analysis_data_adults %>%
   filter(
     !is.na(LBXVIDMS),           # Vitamin D
     !is.na(depression_binary),  # Depression outcome
@@ -260,14 +263,20 @@ analysis_complete <- analysis_data %>%
 
 # Calculate percentage of data dropped
 n_original <- nrow(analysis_data)
+n_adults <- nrow(analysis_data_adults)
 n_complete <- nrow(analysis_complete)
-n_dropped <- n_original - n_complete
+n_dropped_age <- n_original - n_adults
+n_dropped_missing <- n_adults - n_complete
 pct_dropped <- (1 - n_complete/n_original) * 100
 
-cat("Original sample size:", n_original, "\n")
-cat("Complete case sample size:", n_complete, "\n")
-cat("Number of observations dropped:", n_dropped, "\n")
-cat("Percentage of data dropped:", round(pct_dropped, 2), "%\n")
+cat("=== SAMPLE SELECTION ===\n")
+cat("Total NHANES 2021-2023:", n_original, "\n")
+cat("  Excluded <18 years:", n_dropped_age, "\n\n")
+cat("Adults ≥18 years:", n_adults, "\n")
+cat("  Excluded missing data:", n_dropped_missing, "\n\n")
+cat("FINAL ANALYTIC SAMPLE:", n_complete, "\n\n")
+cat("Overall retention:", round((n_complete/n_original)*100, 1), "%\n")
+cat("Retention from adults:", round((n_complete/n_adults)*100, 1), "%\n")
 ```
 
 # 8. Test linearity assumption for continuous predictors
@@ -414,3 +423,66 @@ save_html(t1, file = "Table1.html")
 pandoc_convert("Table1.html", to = "docx", output = "Table1.docx")
 ```
 
+# Figure 1. Study Population Selection
+```{r}
+# Step 1: Total
+n1_total <- nrow(nhanes_data)
+
+# Step 2: Adults only
+n2_adults <- sum(nhanes_data$RIDAGEYR >= 18, na.rm = TRUE)
+
+# Step 3: With vitamin D
+n3_with_vitd <- sum(nhanes_data$RIDAGEYR >= 18 & 
+                    !is.na(nhanes_data$LBXVIDMS), na.rm = TRUE)
+
+# Step 4: With PHQ-9
+n4_with_phq9 <- sum(nhanes_data$RIDAGEYR >= 18 & 
+                    !is.na(nhanes_data$LBXVIDMS) & 
+                    !is.na(nhanes_data$depression_binary), na.rm = TRUE)
+
+# Step 5: Final complete cases
+n5_final <- nrow(analysis_complete)
+
+# Print flowchart
+cat("        NHANES 2021-2023 Total\n")
+cat("              N =", n1_total, "\n")
+cat("                 |\n")
+cat("                 ↓\n")
+cat("      Excluded: Age <18 (n =", n1_total - n2_adults, ")\n")
+cat("                 |\n")
+cat("           Adults ≥18\n")
+cat("              N =", n2_adults, "\n")
+cat("                 |\n")
+cat("                 ↓\n")
+cat("   Excluded: Missing Vitamin D (n =", n2_adults - n3_with_vitd, ")\n")
+cat("                 |\n")
+cat("        With Vitamin D Data\n")
+cat("              N =", n3_with_vitd, "\n")
+cat("                 |\n")
+cat("                 ↓\n")
+cat("    Excluded: Missing PHQ-9 (n =", n3_with_vitd - n4_with_phq9, ")\n")
+cat("                 |\n")
+cat("         With PHQ-9 Data\n")
+cat("              N =", n4_with_phq9, "\n")
+cat("                 |\n")
+cat("                 ↓\n")
+cat("  Excluded: Missing Covariates* (n =", n4_with_phq9 - n5_final, ")\n")
+cat("                 |\n")
+cat("       FINAL ANALYTIC SAMPLE\n")
+cat("              N =", n5_final, "\n")
+cat("\n")
+cat("Overall retention:", round((n5_final/n1_total)*100, 1), "%\n")
+cat("\n*Sex, race/ethnicity, BMI, education, income, smoking\n")
+```
+
+#**Inclusion Criteria:**
+#- Adults aged ≥18 years
+# Complete serum vitamin D measurements (LBXVIDMS)
+#- Complete PHQ-9 depression assessment
+#- Complete data on all covariates (sex, race/ethnicity, BMI, education, income-to-poverty ratio, smoking status)
+
+#**Exclusion Criteria:**
+#- Age <18 years
+#- Missing vitamin D measurements
+#- Missing PHQ-9 data
+#- Missing covariate data
