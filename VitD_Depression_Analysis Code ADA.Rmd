@@ -29,7 +29,7 @@ pacman::p_load(
 
 ```{r}
 
-github_base <- "https://raw.githubusercontent.com/Bisratbekele/ADA-Final-Assignment/master/ADA%20Final/"
+github_base <- "https://raw.githubusercontent.com/Bisratbekele/ADA-Final-Assignment/master/"
 
 DEMO_L <- read_xpt(paste0(github_base, "DEMO_L.xpt"))
 VID_L  <- read_xpt(paste0(github_base, "VID_L.xpt"))
