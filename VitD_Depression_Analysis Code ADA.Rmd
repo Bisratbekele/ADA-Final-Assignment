@@ -23,7 +23,8 @@ pacman::p_load(
   haven,          
   table1, 
   DiagrammeR,
-  rsvg
+  rsvg,
+  flextable
 )
 ```
 
@@ -472,6 +473,7 @@ label(analysis_complete$smoking_status) <- "Smoking Status"
 table1(~ LBXVIDMS + vitd_category + RIDAGEYR + sex + race_ethnicity + 
          bmi_cat + education + INDFMPIR + smoking_status | depression_binary, 
        analysis_complete)
+
 ```
 
 **Table 1.** Baseline characteristics stratified by depression status (PHQ-9 ≥ 10). 
