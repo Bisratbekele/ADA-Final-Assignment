@@ -242,7 +242,7 @@ ggplot(data = analysis_data %>% filter(!is.na(depression_binary))) +
   theme(legend.position = "none")
 ```
 
-# 7. Create exclusion datasets step-by-step (following class exercise pattern)
+# 7. Create exclusion datasets step-by-step
 
 ## 7a. Drop observations with age <18 years
 ```{r}
@@ -282,8 +282,52 @@ analysis_complete <- ex4
 
 cat("\nFINAL ANALYTIC SAMPLE:", nrow(analysis_complete), "observations\n")
 ```
+# 8. Figure 1: Participant Selection Flowchart (following class exercise pattern)
+```{r, echo=FALSE}
+# Calculate numbers for flowchart
+n_start <- nrow(analysis_data)
+n_ex1 <- nrow(ex1)
+n_ex2 <- nrow(ex2)
+n_ex3 <- nrow(ex3)
+n_ex4 <- nrow(ex4)
 
-# 8. Test linearity assumption for continuous predictors
+# Create flowchart using DiagrammeR (like class exercise)
+grViz(diagram = "digraph flowchart{
+      node [fontname = Arial, shape = rectangle, fontsize=12] 
+      
+      node1 [label = '@@1']
+      node2 [label = '@@2']
+      node3 [label = '@@3']
+      node4 [label = '@@4']
+      node5 [label = '@@5']
+      
+      node1 -> node2 -> node3 -> node4 -> node5
+}
+      [1]: paste0('Starting number of records in NHANES 2021-2023\\nn = ', format(n_start, big.mark=','))
+      [2]: paste0('Excluding ', format(n_start - n_ex1, big.mark=','), ' individuals age <18 years\\nn = ', format(n_ex1, big.mark=','))
+      [3]: paste0('Excluding ', format(n_ex1 - n_ex2, big.mark=','), ' individuals with missing vitamin D data\\nn = ', format(n_ex2, big.mark=','))
+      [4]: paste0('Excluding ', format(n_ex2 - n_ex3, big.mark=','), ' individuals with missing PHQ-9 data\\nn = ', format(n_ex3, big.mark=','))
+      [5]: paste0('Excluding ', format(n_ex3 - n_ex4, big.mark=','), ' individuals with missing covariates*\\nn = ', format(n_ex4, big.mark=','))
+      ")
+```
+
+**Figure 1.** Participant selection flowchart for NHANES 2021-2023 analysis of vitamin D and depression.
+
+*Covariates: sex, race/ethnicity, BMI, education, income-to-poverty ratio, smoking status
+
+#**Inclusion Criteria:**
+#- Adults aged ≥18 years
+# Complete serum vitamin D measurements (LBXVIDMS)
+#- Complete PHQ-9 depression assessment
+#- Complete data on all covariates (sex, race/ethnicity, BMI, education, income-to-poverty ratio, smoking status)
+
+#**Exclusion Criteria:**
+#- Age <18 years
+#- Missing vitamin D measurements
+#- Missing PHQ-9 data
+#- Missing covariate data
+
+# 9. Test linearity assumption for continuous predictors
 
 ```{r}
 # Testing linearity assumption for Vitamin D using Box-Tidwell technique
@@ -338,7 +382,7 @@ analysis_complete <- analysis_complete %>%
 
 ```
 
-# 9. Univariate logistic regression: Vitamin D and Depression
+# 10. Univariate logistic regression: Vitamin D and Depression
 
 ```{r}
 # 9. Univariate logistic regression: Vitamin D category and Depression
@@ -363,13 +407,13 @@ odds.n.ends(model_unadjusted)
 
 #Compared with participants with sufficient vitamin D:
 
-# Those with insufficient vitamin D have 46% higher odds of depression (OR = 1.46, 95% CI: 1.18–1.80, p < 0.001).
+**Interpretation:** Those with insufficient vitamin D have 46% higher odds of depression (OR = 1.46, 95% CI: 1.18–1.80, p < 0.001).
 
-# Those with deficient vitamin D have about 81% higher odds of depression (OR = 1.81, 95% CI: 1.44–2.27, p < 0.001).
+**Interpretation:** Those with deficient vitamin D have about 81% higher odds of depression (OR = 1.81, 95% CI: 1.44–2.27, p < 0.001).
 
 
 
-# 10. Multivariate logistic regression: Adjusted model
+# 11. Multivariate logistic regression: Adjusted model
 
 ```{r}
 # Multivariate model adjusting for age, sex, race/ethnicity, BMI, education, SES, and smoking
@@ -384,7 +428,7 @@ model_adjusted <- glm(
 odds.n.ends(model_adjusted)
 ```
 
-# 11. Check for multicollinearity
+# 12. Check for multicollinearity
 
 ```{r}
 # Calculate VIF
@@ -393,7 +437,7 @@ print(vif_values)
 
 ```
 
-# 12. Influential observations using Cook's Distance
+# 13. Influential observations using Cook's Distance
 
 ```{r}
 # Plot Cook's Distance to identify influential observations
@@ -404,14 +448,14 @@ abline(h = 1, lty = 2, col = "blue")
 ```
 
 
-# 13. Model Performance Evaluation
+# 14. Model Performance Evaluation
 
 ```{r}
 # Evaluate model fit with predicted probabilities, ROC curve, and AUC
 odds.n.ends(model_adjusted, predProbPlot = TRUE, rocPlot = TRUE)
 ```
 
-# 14. Table 1: Baseline Characteristics (following class exercise pattern)
+# 15. Table 1: Baseline Characteristics
 ```{r, echo=FALSE}
 # Add variable labels
 label(analysis_complete$LBXVIDMS)       <- "Serum Vitamin D (nmol/L)"
@@ -433,47 +477,3 @@ table1(~ LBXVIDMS + vitd_category + RIDAGEYR + sex + race_ethnicity +
 **Table 1.** Baseline characteristics stratified by depression status (PHQ-9 ≥ 10). 
 Continuous variables presented as mean ± SD; categorical variables as N (%).
 
-# 8. Figure 1: Participant Selection Flowchart (following class exercise pattern)
-```{r, echo=FALSE}
-# Calculate numbers for flowchart
-n_start <- nrow(analysis_data)
-n_ex1 <- nrow(ex1)
-n_ex2 <- nrow(ex2)
-n_ex3 <- nrow(ex3)
-n_ex4 <- nrow(ex4)
-
-# Create flowchart using DiagrammeR (like class exercise)
-grViz(diagram = "digraph flowchart{
-      node [fontname = Arial, shape = rectangle, fontsize=12] 
-      
-      node1 [label = '@@1']
-      node2 [label = '@@2']
-      node3 [label = '@@3']
-      node4 [label = '@@4']
-      node5 [label = '@@5']
-      
-      node1 -> node2 -> node3 -> node4 -> node5
-}
-      [1]: paste0('Starting number of records in NHANES 2021-2023\\nn = ', format(n_start, big.mark=','))
-      [2]: paste0('Excluding ', format(n_start - n_ex1, big.mark=','), ' individuals age <18 years\\nn = ', format(n_ex1, big.mark=','))
-      [3]: paste0('Excluding ', format(n_ex1 - n_ex2, big.mark=','), ' individuals with missing vitamin D data\\nn = ', format(n_ex2, big.mark=','))
-      [4]: paste0('Excluding ', format(n_ex2 - n_ex3, big.mark=','), ' individuals with missing PHQ-9 data\\nn = ', format(n_ex3, big.mark=','))
-      [5]: paste0('Excluding ', format(n_ex3 - n_ex4, big.mark=','), ' individuals with missing covariates*\\nn = ', format(n_ex4, big.mark=','))
-      ")
-```
-
-**Figure 1.** Participant selection flowchart for NHANES 2021-2023 analysis of vitamin D and depression.
-
-*Covariates: sex, race/ethnicity, BMI, education, income-to-poverty ratio, smoking status
-
-#**Inclusion Criteria:**
-#- Adults aged ≥18 years
-# Complete serum vitamin D measurements (LBXVIDMS)
-#- Complete PHQ-9 depression assessment
-#- Complete data on all covariates (sex, race/ethnicity, BMI, education, income-to-poverty ratio, smoking status)
-
-#**Exclusion Criteria:**
-#- Age <18 years
-#- Missing vitamin D measurements
-#- Missing PHQ-9 data
-#- Missing covariate data
