@@ -1703,7 +1703,8 @@ pacman::p_load(
   haven,          
   table1, 
   DiagrammeR,
-  rsvg
+  rsvg,
+  flextable
 )</code></pre>
 </div>
 <div id="import-nhanes-2021-2023-data" class="section level1">
@@ -2013,11 +2014,35 @@ cat(&quot;\nFINAL ANALYTIC SAMPLE:&quot;, nrow(analysis_complete), &quot;observa
 ## FINAL ANALYTIC SAMPLE: 4262 observations</code></pre>
 </div>
 </div>
-<div id="figure-1-participant-selection-flowchart-following-class-exercise-pattern" class="section level1">
-<h1>8. Figure 1: Participant Selection Flowchart (following class
-exercise pattern)</h1>
-<div class="grViz html-widget html-fill-item" id="htmlwidget-03c323bda7c714b64392" style="width:672px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-03c323bda7c714b64392">{"x":{"diagram":"digraph flowchart{\n      node [fontname = Arial, shape = rectangle, fontsize=12] \n      \n      node1 [label = \"Starting number of records in NHANES 2021-2023\nn = 11,933\"]\n      node2 [label = \"Excluding 3,780 individuals age <18 years\nn = 8,153\"]\n      node3 [label = \"Excluding 2,329 individuals with missing vitamin D data\nn = 5,824\"]\n      node4 [label = \"Excluding 735 individuals with missing PHQ-9 data\nn = 5,089\"]\n      node5 [label = \"Excluding 827 individuals with missing covariates*\nn = 4,262\"]\n      \n      node1 -> node2 -> node3 -> node4 -> node5\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="figure-1-participant-selection-flowchart" class="section level1">
+<h1>8. Figure 1: Participant Selection Flowchart</h1>
+<pre class="r"><code># Calculate numbers for flowchart
+n_start &lt;- nrow(analysis_data)
+n_ex1 &lt;- nrow(ex1)
+n_ex2 &lt;- nrow(ex2)
+n_ex3 &lt;- nrow(ex3)
+n_ex4 &lt;- nrow(ex4)
+
+# Create flowchart using DiagrammeR
+grViz(diagram = &quot;digraph flowchart{
+      node [fontname = Arial, shape = rectangle, fontsize=12] 
+      
+      node1 [label = &#39;@@1&#39;]
+      node2 [label = &#39;@@2&#39;]
+      node3 [label = &#39;@@3&#39;]
+      node4 [label = &#39;@@4&#39;]
+      node5 [label = &#39;@@5&#39;]
+      
+      node1 -&gt; node2 -&gt; node3 -&gt; node4 -&gt; node5
+}
+      [1]: paste0(&#39;Starting number of records in NHANES 2021-2023\\nn = &#39;, format(n_start, big.mark=&#39;,&#39;))
+      [2]: paste0(&#39;Excluding &#39;, format(n_start - n_ex1, big.mark=&#39;,&#39;), &#39; individuals age &lt;18 years\\nn = &#39;, format(n_ex1, big.mark=&#39;,&#39;))
+      [3]: paste0(&#39;Excluding &#39;, format(n_ex1 - n_ex2, big.mark=&#39;,&#39;), &#39; individuals with missing vitamin D data\\nn = &#39;, format(n_ex2, big.mark=&#39;,&#39;))
+      [4]: paste0(&#39;Excluding &#39;, format(n_ex2 - n_ex3, big.mark=&#39;,&#39;), &#39; individuals with missing PHQ-9 data\\nn = &#39;, format(n_ex3, big.mark=&#39;,&#39;))
+      [5]: paste0(&#39;Excluding &#39;, format(n_ex3 - n_ex4, big.mark=&#39;,&#39;), &#39; individuals with missing covariates*\\nn = &#39;, format(n_ex4, big.mark=&#39;,&#39;))
+      &quot;)</code></pre>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-4720b1ffa4d5b5efe1b6" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-4720b1ffa4d5b5efe1b6">{"x":{"diagram":"digraph flowchart{\n      node [fontname = Arial, shape = rectangle, fontsize=12] \n      \n      node1 [label = \"Starting number of records in NHANES 2021-2023\nn = 11,933\"]\n      node2 [label = \"Excluding 3,780 individuals age <18 years\nn = 8,153\"]\n      node3 [label = \"Excluding 2,329 individuals with missing vitamin D data\nn = 5,824\"]\n      node4 [label = \"Excluding 735 individuals with missing PHQ-9 data\nn = 5,089\"]\n      node5 [label = \"Excluding 827 individuals with missing covariates*\nn = 4,262\"]\n      \n      node1 -> node2 -> node3 -> node4 -> node5\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>Figure 1.</strong> Participant selection flowchart for NHANES
 2021-2023 analysis of vitamin D and depression.</p>
 <p>*Covariates: sex, race/ethnicity, BMI, education, income-to-poverty
@@ -2339,6 +2364,21 @@ odds.n.ends(model_adjusted, predProbPlot = TRUE, rocPlot = TRUE)</code></pre>
 </div>
 <div id="table-1-baseline-characteristics" class="section level1">
 <h1>15. Table 1: Baseline Characteristics</h1>
+<pre class="r"><code># Variable labels
+label(analysis_complete$LBXVIDMS)       &lt;- &quot;Serum Vitamin D (nmol/L)&quot;
+label(analysis_complete$vitd_category)  &lt;- &quot;Vitamin D Status&quot;
+label(analysis_complete$RIDAGEYR)       &lt;- &quot;Age (years)&quot;
+label(analysis_complete$sex)            &lt;- &quot;Sex&quot;
+label(analysis_complete$race_ethnicity) &lt;- &quot;Race/Ethnicity&quot;
+label(analysis_complete$bmi_cat)        &lt;- &quot;BMI Category&quot;
+label(analysis_complete$education)      &lt;- &quot;Education Level&quot;
+label(analysis_complete$INDFMPIR)       &lt;- &quot;Income-to-Poverty Ratio&quot;
+label(analysis_complete$smoking_status) &lt;- &quot;Smoking Status&quot;
+
+# Create Table 1
+table1(~ LBXVIDMS + vitd_category + RIDAGEYR + sex + race_ethnicity + 
+         bmi_cat + education + INDFMPIR + smoking_status | depression_binary, 
+       analysis_complete)</code></pre>
 <div class="Rtable1"><table class="Rtable1">
 <thead>
 <tr>
