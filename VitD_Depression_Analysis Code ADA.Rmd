@@ -282,8 +282,8 @@ analysis_complete <- ex4
 
 cat("\nFINAL ANALYTIC SAMPLE:", nrow(analysis_complete), "observations\n")
 ```
-# 8. Figure 1: Participant Selection Flowchart (following class exercise pattern)
-```{r, echo=FALSE}
+# 8. Figure 1: Participant Selection Flowchart
+```{r}
 # Calculate numbers for flowchart
 n_start <- nrow(analysis_data)
 n_ex1 <- nrow(ex1)
@@ -291,7 +291,7 @@ n_ex2 <- nrow(ex2)
 n_ex3 <- nrow(ex3)
 n_ex4 <- nrow(ex4)
 
-# Create flowchart using DiagrammeR (like class exercise)
+# Create flowchart using DiagrammeR
 grViz(diagram = "digraph flowchart{
       node [fontname = Arial, shape = rectangle, fontsize=12] 
       
@@ -456,8 +456,8 @@ odds.n.ends(model_adjusted, predProbPlot = TRUE, rocPlot = TRUE)
 ```
 
 # 15. Table 1: Baseline Characteristics
-```{r, echo=FALSE}
-# Add variable labels
+```{r}
+# Variable labels
 label(analysis_complete$LBXVIDMS)       <- "Serum Vitamin D (nmol/L)"
 label(analysis_complete$vitd_category)  <- "Vitamin D Status"
 label(analysis_complete$RIDAGEYR)       <- "Age (years)"
